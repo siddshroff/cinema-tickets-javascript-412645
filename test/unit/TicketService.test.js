@@ -17,8 +17,9 @@ describe("Cinema Ticket Service Testing", async () => {
   describe("Cinema Ticket Service interface contract testing", async () => {
     //   Expect TicketService to expose only one public method i.e purchaseTickets
     it("should expose exactly one public method: purchaseTickets", () => {
-      const publicMethods = Object.getOwnPropertyNames(TicketService.prototype)
-      .filter((name) => name !== "constructor");
+      const publicMethods = Object.getOwnPropertyNames(
+        TicketService.prototype
+      ).filter((name) => name !== "constructor");
       expect(publicMethods).to.deep.equal(["purchaseTickets"]);
     });
     //   Expect TicketService to be immutable to not add new public methods
@@ -86,13 +87,54 @@ describe("Cinema Ticket Service Testing", async () => {
     });
   });
   describe("Cinema Ticket Requests various scenarios of InvalidPurchaseException", async () => {
-    beforeEach(async() => {
+    beforeEach(async () => {
       await failedBusinessEventsCounter.reset();
       Sinon.restore();
     });
+    // Try to book 0(zero) tickets
+    it("Invalid payload of 0(zero) number of tickets", async () => {
+      const objTicket = new TicketService();
+      assert.throws(() => {
+        objTicket.purchaseTickets(1);
+      }, InvalidPurchaseException);
+      assert.equal(
+        (await failedBusinessEventsCounter.get()).values[0].value,
+        1
+      );
+    });
+    // Try to book 0(zero) tickets
+    it("Invalid payload of 0(zero) number of tickets", async () => {
+      const objTicket = new TicketService();
+      assert.throws(() => {
+        objTicket.purchaseTickets(
+          1,
+          new TicketTypeRequest(TicketTypes.ADULT, 0)
+        );
+      }, InvalidPurchaseException);
+      assert.equal(
+        (await failedBusinessEventsCounter.get()).values[0].value,
+        1
+      );
+    });
+    // Try to book tickets with 0 zero ticket in array
+    it("Invalid payload of tickets exceeding maximum number of tickets", async () => {
+      const objTicket = new TicketService();
+      assert.throws(() => {
+        objTicket.purchaseTickets(
+          1,
+          new TicketTypeRequest(TicketTypes.ADULT, 8),
+          new TicketTypeRequest(TicketTypes.CHILD, 0),
+          new TicketTypeRequest(TicketTypes.CHILD, 10)
+        );
+      }, InvalidPurchaseException);
+      assert.equal(
+        (await failedBusinessEventsCounter.get()).values[0].value,
+        1
+      );
+    });
     // Try to book tickets more than maximum allowed
     // Business Rule: Only a maximum of 25 tickets that can be purchased at a time.
-    it("Invalid payload of tickets exceeding maximum number of tickets", async() => {
+    it("Invalid payload of tickets exceeding maximum number of tickets", async () => {
       const objTicket = new TicketService();
       assert.throws(() => {
         objTicket.purchaseTickets(
@@ -102,11 +144,14 @@ describe("Cinema Ticket Service Testing", async () => {
           new TicketTypeRequest(TicketTypes.CHILD, 10)
         );
       }, InvalidPurchaseException);
-      assert.equal((await failedBusinessEventsCounter.get()).values[0].value,1);
+      assert.equal(
+        (await failedBusinessEventsCounter.get()).values[0].value,
+        1
+      );
     });
     // Testing business rule where adult should be present when infants or childs are booked
     // Business Rule: Child and Infant tickets cannot be purchased without purchasing an Adult ticket.
-    it("Invalid payload of tickets for no adult ticket present when infants are booked", async() => {
+    it("Invalid payload of tickets for no adult ticket present when infants are booked", async () => {
       const objTicket = new TicketService();
       assert.throws(() => {
         objTicket.purchaseTickets(
@@ -114,11 +159,14 @@ describe("Cinema Ticket Service Testing", async () => {
           new TicketTypeRequest(TicketTypes.INFANT, 8)
         );
       }, InvalidPurchaseException);
-      assert.equal((await failedBusinessEventsCounter.get()).values[0].value,1);
+      assert.equal(
+        (await failedBusinessEventsCounter.get()).values[0].value,
+        1
+      );
     });
     // Testing business rule where adult should be present when infants or childs are booked
     // Business Rule: Child and Infant tickets cannot be purchased without purchasing an Adult ticket.
-    it("Invalid payload of tickets for no adult ticket present when childs are booked", async() => {
+    it("Invalid payload of tickets for no adult ticket present when childs are booked", async () => {
       const objTicket = new TicketService();
       assert.throws(() => {
         objTicket.purchaseTickets(
@@ -126,13 +174,19 @@ describe("Cinema Ticket Service Testing", async () => {
           new TicketTypeRequest(TicketTypes.CHILD, 8)
         );
       }, InvalidPurchaseException);
-      assert.equal((await failedBusinessEventsCounter.get()).values[0].value,1);
+      assert.equal(
+        (await failedBusinessEventsCounter.get()).values[0].value,
+        1
+      );
     });
     // Testing business rule where adult can only sit 1 infant on his/her lap
     // Business Rule: Infants do not pay for a ticket and are not allocated a seat. They will be sitting on an Adult's lap.
-    it("Invalid payload of tickets for less adult ticket than infant present", async() => {
+    it("Invalid payload of tickets for less adult ticket than infant present", async () => {
       const objTicket = new TicketService();
-      assert.equal((await failedBusinessEventsCounter.get()).values[0].value,0);
+      assert.equal(
+        (await failedBusinessEventsCounter.get()).values[0].value,
+        0
+      );
       assert.throws(() => {
         objTicket.purchaseTickets(
           1,
@@ -140,7 +194,10 @@ describe("Cinema Ticket Service Testing", async () => {
           new TicketTypeRequest(TicketTypes.INFANT, 10)
         );
       }, InvalidPurchaseException);
-      assert.equal((await failedBusinessEventsCounter.get()).values[0].value,1);
+      assert.equal(
+        (await failedBusinessEventsCounter.get()).values[0].value,
+        1
+      );
     });
   });
   describe("Cinema Ticket Requests various successfull scenarios with edge cases of valid purchase", async () => {
@@ -196,7 +253,7 @@ describe("Cinema Ticket Service Testing", async () => {
   });
 });
 describe("Cinema Ticket Requests assumptions scenarios failing for valid ticket request", async () => {
-  beforeEach(async() => {
+  beforeEach(async () => {
     Sinon.restore();
     await failedEventsCounter.reset();
   });
@@ -226,13 +283,13 @@ describe("Cinema Ticket Requests assumptions scenarios failing for valid ticket 
   // Assumptions: The `TicketPaymentService` implementation is an external provider
   // with no defects. You do not need to worry about how the actual payment happens.
   // - The payment will always go through once a payment request has been made to the `TicketPaymentService`.
-  it("Valid payload of tickets fails for making payment", async() => {
+  it("Valid payload of tickets fails for making payment", async () => {
     Sinon.stub(TicketPaymentService.prototype, "makePayment").throwsException(
       new InvalidPurchaseException()
     );
     Sinon.stub(SeatReservationService.prototype, "reserveSeat").returns(true);
     const objTicket = new TicketService();
-    assert.equal((await failedEventsCounter.get()).values[0].value,0);
+    assert.equal((await failedEventsCounter.get()).values[0].value, 0);
     assert.throws(() => {
       objTicket.purchaseTickets(
         1,
@@ -241,19 +298,19 @@ describe("Cinema Ticket Requests assumptions scenarios failing for valid ticket 
         new TicketTypeRequest(TicketTypes.CHILD, 8)
       );
     }, InvalidPurchaseException);
-    assert.equal((await failedEventsCounter.get()).values[0].value,1);
+    assert.equal((await failedEventsCounter.get()).values[0].value, 1);
   });
   // Testing assumptions scenarios complying to all business rules and feasibility
   //- The `SeatReservationService` implementation is an external provider with no defects.
   // You do not need to worry about how the seat reservation algorithm works.
   // - The seat will always be reserved once a reservation request has been made to the `SeatReservationService`.
-  it("Valid payload of tickets fails for reserving seat", async() => {
+  it("Valid payload of tickets fails for reserving seat", async () => {
     Sinon.stub(TicketPaymentService.prototype, "makePayment").returns(true);
     Sinon.stub(SeatReservationService.prototype, "reserveSeat").throwsException(
       new InvalidPurchaseException()
     );
     const objTicket = new TicketService();
-    assert.equal((await failedEventsCounter.get()).values[0].value,0);
+    assert.equal((await failedEventsCounter.get()).values[0].value, 0);
     assert.throws(() => {
       objTicket.purchaseTickets(
         1,
@@ -262,6 +319,6 @@ describe("Cinema Ticket Requests assumptions scenarios failing for valid ticket 
         new TicketTypeRequest(TicketTypes.CHILD, 8)
       );
     }, InvalidPurchaseException);
-    assert.equal((await failedEventsCounter.get()).values[0].value,1);
+    assert.equal((await failedEventsCounter.get()).values[0].value, 1);
   });
 });
