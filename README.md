@@ -1,43 +1,76 @@
-Instructions:
-# Objective
-This is a coding exercise which will allow you to demonstrate how you code and your approach to a given problem. 
-You will be assessed on: 
-- Your ability to write clean, well-tested and reusable code.
-- How you have ensured the following business rules are correctly met.
+# Cinema Ticket Booking Service
 
+Cinema Ticket Booking service is used to book tickets to cinema. It calculates the total amount for type of tickets requested along with the seats to be reserved considering the business rules. Once the final amount is calculated it  reserves seats over third party APIs and then makes payment which is again third party APIs.
 
-# Business Rules
-- There are 3 types of tickets i.e. Infant, Child, and Adult.
-- The ticket prices are based on the type of ticket (see table below).
-- The ticket purchaser declares how many and what type of tickets they want to buy.
-- Multiple tickets can be purchased at any given time.
-- Only a maximum of 25 tickets that can be purchased at a time.
-- Infants do not pay for a ticket and are not allocated a seat. They will be sitting on an Adult's lap.
-- Child and Infant tickets cannot be purchased without purchasing an Adult ticket.
-|   Ticket Type    |     Price   |
-| ---------------- | ----------- |
-|    INFANT        |    £0       |
-|    CHILD         |    £15     |
-|    ADULT         |    £25      |
-- There is an existing `TicketPaymentService` responsible for taking payments.
-- There is an existing `SeatReservationService` responsible for reserving seats.
+## Table of contents
 
+* Setup Instructions
+* Building
+* Testing
+* Coverage
+* Pipeline
+* Secuirty Checks
+* Update dependancies
+* Compliance
 
-## Constraints
-- The TicketService interface CANNOT be modified. 
-- The code in the thirdparty.* packages CANNOT be modified.
-- The `TicketTypeRequest` SHOULD be an immutable object.
+### Setup Instructions
 
-## AssumptionsYou can assume:
-- All accounts with an id greater than zero are valid. They also have sufficient funds to pay for any no of tickets.
-- The `TicketPaymentService` implementation is an external provider with no defects. You do not need to worry about how the actual payment happens.
-- The payment will always go through once a payment request has been made to the `TicketPaymentService`.
-- The `SeatReservationService` implementation is an external provider with no defects. You do not need to worry about how the seat reservation algorithm works.
-- The seat will always be reserved once a reservation request has been made to the `SeatReservationService`.
+Install Node (v20 or higher) by following instaructions on the https://nodejs.org/en/download
+according to the OS and desired package manager and version manager.
 
-## Your Task
-Provide a working implementation of a `TicketService` that:
-- Considers the above objective, business rules, constraints & assumptions.
-- Calculates the correct amount for the requested tickets and makes a payment request to the `TicketPaymentService`.  
-- Calculates the correct no of seats to reserve and makes a seat reservation request to the `SeatReservationService`.  
-- Rejects any invalid ticket purchase requests. It is up to you to identify what should be deemed as an invalid purchase request
+Clone the repository from https://github.com/siddshroff/cinema-tickets-javascript-412645.git. 
+Open it in VSCode or any other appropriate IDE.
+
+Once all the pre-requisites are downloaded and installed in your machine it is ready to be build and tested.
+## Building
+
+Clean install the project:
+```
+npm ci
+```
+
+## Testing
+
+Run:
+```
+npm run test:unit
+```
+
+## Coverage
+
+Run:
+```
+npm run test:coverage
+```
+
+## Pipeline
+
+Run:
+```
+npm run pipeline
+```
+
+## Security Checks
+
+Run:
+```
+npm run security
+```
+
+## Compliance Checks
+
+Before raising pull request, run this command to avoid pipeline failures
+Run:
+```
+npm run security
+```
+
+## Update dependencies
+
+Before updating and running update commands ensure dependencies are stable LTS versions
+**To display updates**
+`npm run security:outdated`
+
+**To apply patches/updates**
+`rm -rf node_modules package-lock.json`
+`npm install`

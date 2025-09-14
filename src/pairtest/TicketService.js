@@ -1,17 +1,17 @@
 import InvalidPurchaseException from "../pairtest/lib/InvalidPurchaseException.js";
 import TicketPaymentService from "../thirdparty/paymentgateway/TicketPaymentService.js";
 import SeatReservationService from "../thirdparty/seatbooking/SeatReservationService.js";
-import { logger } from "../utils/logger.js";
+import logger from "../utils/Logger.js";
 import {
   Defaults,
   TicketTypes,
   ErrorCodes,
   TicketPrices,
-} from "../enum/constants.js";
+} from "../enum/Constants.js";
 import {
   failedBusinessEventsCounter,
   failedEventsCounter,
-} from "./lib/promClient.js";
+} from "./lib/PromClient.js";
 
 /**
  * This service class for cinema ticket booking application.
@@ -32,16 +32,16 @@ export default class TicketService {
    * If any validation fails then throw exception.
    *
    * @param accountId
-   * @param ticketTypeRequests
+   * @param {TicketTypeRequest}ticketTypeRequests
    * @throws InvalidPurchaseException
    */
 
   purchaseTickets(accountId, ...ticketTypeRequests) {
     let totalAmountToPay = 0,
       totalSeatsToAllocate = 0;
-    const ticketPaymentService = new TicketPaymentService;
-    const seatReservationService = new SeatReservationService;
-
+    const ticketPaymentService = new TicketPaymentService();
+    const seatReservationService = new SeatReservationService();
+    logger.info(`Ticket booking request for Account ID:: ${accountId}`);
     logger.debug(`Validating requests for Account ID:: ${accountId}`);
     /* eslint-disable-next-line*/
     this.#validateRequest(accountId, ticketTypeRequests);
@@ -51,36 +51,43 @@ export default class TicketService {
         TicketPrices[ticketRequest.getTicketType()] *
         ticketRequest.getNoOfTickets();
 
-      totalSeatsToAllocate += ticketRequest
-        .getTicketType() !== TicketTypes.INFANT
-        ? ticketRequest.getNoOfTickets()
-        : 0;
+      totalSeatsToAllocate +=
+        ticketRequest.getTicketType() !== TicketTypes.INFANT
+          ? ticketRequest.getNoOfTickets()
+          : 0;
     });
-    try {
-      logger.debug("Proceeding for payment for Account ID:: {}", accountId);
-      ticketPaymentService.makePayment(accountId, totalAmountToPay);
-      logger.debug("Payment successful for Account ID:: {}", accountId);
-    } catch (paymentException) {
-      logger.error("Payment gateway failed to process payment", paymentException);
-      failedEventsCounter.inc();
-      throw new InvalidPurchaseException(
-        ErrorCodes.ERRORCT01, `Payment failed for Account id:: ${accountId}`);
-    }
     try {
       logger.debug(
         "Proceeding for seat reservation for Account ID:: {}",
         accountId
       );
       seatReservationService.reserveSeat(accountId, totalSeatsToAllocate);
-      logger.debug(
-        "Seat reservation successful for Account ID:: {}",
-        accountId
-      );
+      logger.info("Seat reservation successful for Account ID:: {}", accountId);
     } catch (seatReservationException) {
-      logger.error("Seat reservation failed to reserve seat", seatReservationException);
+      logger.error(
+        "Seat reservation failed to reserve seat",
+        seatReservationException
+      );
       failedEventsCounter.inc();
       throw new InvalidPurchaseException(
-        ErrorCodes.ERRORCT01, `Seat reservation failed for Account id:: ${accountId}`);
+        ErrorCodes.ERRORCT01,
+        `Seat reservation failed for Account id:: ${accountId}`
+      );
+    }
+    try {
+      logger.debug("Proceeding for payment for Account ID:: {}", accountId);
+      ticketPaymentService.makePayment(accountId, totalAmountToPay);
+      logger.info("Payment successful for Account ID:: {}", accountId);
+    } catch (paymentException) {
+      logger.error(
+        "Payment gateway failed to process payment",
+        paymentException
+      );
+      failedEventsCounter.inc();
+      throw new InvalidPurchaseException(
+        ErrorCodes.ERRORCT01,
+        `Payment failed for Account id:: ${accountId}`
+      );
     }
   }
 
@@ -175,3 +182,6 @@ export default class TicketService {
     return adultTickets < infantTickets ? false : true;
   }
 }
+
+Object.freeze(TicketService); // This ensures that interface is not modified to add new properties
+Object.freeze(TicketService.prototype); // This ensures that interface is not modified to add new methods

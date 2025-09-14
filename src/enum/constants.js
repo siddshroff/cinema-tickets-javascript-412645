@@ -16,9 +16,9 @@ const ErrorCodes = Object.freeze({
   ERRORCT05: "Purchase data is null",
 });
 const TicketPrices = Object.freeze({
-  ADULT: 25,
-  CHILD: 15,
-  INFANT: 0
+  [TicketTypes.ADULT]: 25,
+  [TicketTypes.CHILD]: 15,
+  [TicketTypes.INFANT]: 0
 });
 const Metrics = Object.freeze({
   METRICS_PREFIX: 'cinema_ticket_',

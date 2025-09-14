@@ -1,5 +1,5 @@
 import * as prom from "prom-client";
-import { Metrics } from "../../enum/constants.js";
+import { Metrics } from "../../enum/Constants.js";
 const failedEventsCounter = new prom.Counter({
   name: `${Metrics.METRICS_PREFIX}failure_events_total`,
   help: 'Total count of failures',
