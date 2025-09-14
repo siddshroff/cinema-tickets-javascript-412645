@@ -14,6 +14,7 @@ const ErrorCodes = Object.freeze({
   ERRORCT03: "Max ticket count purchase exceeded",
   ERRORCT04: "Adult ticket is not present",
   ERRORCT05: "Purchase data is null",
+  ERRORCT06: "Invalid ticket request"
 });
 const TicketPrices = Object.freeze({
   [TicketTypes.ADULT]: 25,

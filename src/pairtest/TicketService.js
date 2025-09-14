@@ -93,9 +93,10 @@ export default class TicketService {
 
   /**
    * This method validates
-   * 1. Valid check account id
-   * 2. If maximum number of tickets are exceeded.
-   * 3. If atleast one adult is booking the tickets
+   * 1. Is account id valid ?
+   * 2. Is ticket request is valid ?
+   * 3. If maximum number of tickets are exceeded.
+   * 4. If atleast one adult is booking the tickets
    *
    * @param accountId
    * @param ticketTypeRequests
@@ -107,6 +108,22 @@ export default class TicketService {
       throw new InvalidPurchaseException(
         ErrorCodes.ERRORCT02,
         `Account id = ${accountId} is not a valid data`
+      );
+    }
+    if (ticketTypeRequests.length == 0) {
+      logger.error(`Request for 0(zero) number of tickets.`);
+      failedBusinessEventsCounter.inc();
+      throw new InvalidPurchaseException(
+        ErrorCodes.ERRORCT06,
+        `Ticket purchase count is 0(zero). Retry again with valid tickets.`
+      );
+    }
+    if (ticketTypeRequests.find((e) => e.getNoOfTickets() == 0) != undefined) {
+      logger.error(`Request for 0(zero) number of tickets.`);
+      failedBusinessEventsCounter.inc();
+      throw new InvalidPurchaseException(
+        ErrorCodes.ERRORCT06,
+        `Ticket purchase count is 0(zero). Retry again with valid tickets.`
       );
     }
     if (this.#isMaxTicketCountExceeded(ticketTypeRequests)) {

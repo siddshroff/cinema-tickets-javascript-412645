@@ -67,6 +67,7 @@ it("should contain exactly ErrorCodes members and values", () => {
         "ERRORCT03",
         "ERRORCT04",
         "ERRORCT05",
+        "ERRORCT06",
     ]);
     expect(Object.values(ErrorCodes)).to.have.members([
         "Unknown application error",
@@ -74,12 +75,14 @@ it("should contain exactly ErrorCodes members and values", () => {
         "Max ticket count purchase exceeded",
         "Adult ticket is not present",
         "Purchase data is null",
+        "Invalid ticket request",
     ]);
     expect(ErrorCodes.ERRORCT01).to.equal('Unknown application error');
     expect(ErrorCodes.ERRORCT02).to.equal('Account Id Invalid');
     expect(ErrorCodes.ERRORCT03).to.equal('Max ticket count purchase exceeded');
     expect(ErrorCodes.ERRORCT04).to.equal('Adult ticket is not present');
     expect(ErrorCodes.ERRORCT05).to.equal('Purchase data is null');
+    expect(ErrorCodes.ERRORCT06).to.equal('Invalid ticket request');
 });
 it('ErrorCodes enum should be immutable', () => {
     expect(Object.isFrozen(ErrorCodes)).to.be.true;
