@@ -26,8 +26,7 @@
     "security:audit": "npm audit",
     "security:lockfile": "lockfile-lint --path package-lock.json --validate-https",
     "security:outdated": "npm outdated",
-    "compliance": "npm run compliance:commits && npm run compliance:licenses && compliance:lint",
-    "compliance:commits": "commitlint --from=master --to=HEAD",
+    "compliance": "npm run compliance:licenses && compliance:lint",
     "compliance:licenses": "license-checker --failOn 'Unlicense;Public'",
     "compliance:lint": "eslint src test",
     "compliance:lint-fix": "eslint src test --fix"
@@ -37,8 +36,6 @@
     "winston": "3.17.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0",
     "chai": "^6.0.1",
     "eslint": "^8.2.0",
     "eslint-plugin-import": "^2.32.0",

@@ -75,9 +75,8 @@ Before updating and running update commands ensure dependencies are stable LTS v
 npm run security:outdated
 ```
 
-**To apply patches/updates**\
+**To apply patches/updates**
 ```
 rm -rf node_modules package-lock.json
 npm install
-
 ```
