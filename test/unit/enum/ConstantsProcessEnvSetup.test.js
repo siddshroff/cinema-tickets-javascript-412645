@@ -1,10 +1,12 @@
 import { expect } from "chai";
 import { resetEnvironment, setupEnvironment } from "./testEnvSetup.js";
-describe("Constants enum", () => {
-    let constants;
-  before(async() => {
+describe("Constants enum updated via environment variables", () => {
+  let constants;
+  before(async () => {
     setupEnvironment();
-    constants = await import(`../../../src/enum/Constants.js?cacheBust=${Date.now()}`);
+    constants = await import(
+      `../../../src/enum/Constants.js?cacheBust=${Date.now()}`
+    );
   });
   after(() => {
     resetEnvironment();
@@ -26,11 +28,11 @@ describe("Constants enum", () => {
   it("Default enum should be immutable", () => {
     expect(Object.isFrozen(constants.Defaults)).to.be.true;
     expect(() => {
-        constants.Defaults.MAX_TICKETS_ALLOWED = 100;
+      constants.Defaults.MAX_TICKETS_ALLOWED = 100;
     }).to.throw(TypeError);
 
     expect(() => {
-        constants.Defaults.LOG_LEVEL = "debug";
+      constants.Defaults.LOG_LEVEL = "debug";
     }).to.throw(TypeError);
 
     expect(() => {
@@ -55,11 +57,11 @@ describe("Constants enum", () => {
   it("TicketTypes enum should be immutable", () => {
     expect(Object.isFrozen(constants.TicketTypes)).to.be.true;
     expect(() => {
-        constants.TicketTypes.ADULT = "GROWN UPS";
+      constants.TicketTypes.ADULT = "GROWN UPS";
     }).to.throw(TypeError);
 
     expect(() => {
-        constants.TicketTypes.TEEN = "TEEN";
+      constants.TicketTypes.TEEN = "TEEN";
     }).to.throw(TypeError);
 
     expect(() => {
@@ -83,21 +85,27 @@ describe("Constants enum", () => {
       "Purchase data is null",
       "Invalid ticket request",
     ]);
-    expect(constants.ErrorCodes.ERRORCT01).to.equal("Unknown application error");
+    expect(constants.ErrorCodes.ERRORCT01).to.equal(
+      "Unknown application error"
+    );
     expect(constants.ErrorCodes.ERRORCT02).to.equal("Account Id Invalid");
-    expect(constants.ErrorCodes.ERRORCT03).to.equal("Max ticket count purchase exceeded");
-    expect(constants.ErrorCodes.ERRORCT04).to.equal("Adult ticket is not present");
+    expect(constants.ErrorCodes.ERRORCT03).to.equal(
+      "Max ticket count purchase exceeded"
+    );
+    expect(constants.ErrorCodes.ERRORCT04).to.equal(
+      "Adult ticket is not present"
+    );
     expect(constants.ErrorCodes.ERRORCT05).to.equal("Purchase data is null");
     expect(constants.ErrorCodes.ERRORCT06).to.equal("Invalid ticket request");
   });
   it("ErrorCodes enum should be immutable", () => {
     expect(Object.isFrozen(constants.ErrorCodes)).to.be.true;
     expect(() => {
-        constants.ErrorCodes.ERRORCT01 = "Some other description";
+      constants.ErrorCodes.ERRORCT01 = "Some other description";
     }).to.throw(TypeError);
 
     expect(() => {
-        constants.ErrorCodes.ERRORCT02 = "Dummy error";
+      constants.ErrorCodes.ERRORCT02 = "Dummy error";
     }).to.throw(TypeError);
 
     expect(() => {
@@ -106,9 +114,9 @@ describe("Constants enum", () => {
   });
   it("should contain exactly TicketPrices members and values", () => {
     expect(Object.keys(constants.TicketPrices)).to.have.members([
-        constants.TicketTypes.ADULT,
-        constants.TicketTypes.CHILD,
-        constants.TicketTypes.INFANT,
+      constants.TicketTypes.ADULT,
+      constants.TicketTypes.CHILD,
+      constants.TicketTypes.INFANT,
     ]);
     expect(Object.values(constants.TicketPrices)).to.have.members([
       process.env.ADULT_PRICE,
@@ -122,11 +130,11 @@ describe("Constants enum", () => {
   it("TicketPrices enum should be immutable", () => {
     expect(Object.isFrozen(constants.TicketPrices)).to.be.true;
     expect(() => {
-        constants.TicketPrices.ADULT = 10;
+      constants.TicketPrices.ADULT = 10;
     }).to.throw(TypeError);
 
     expect(() => {
-        constants.TicketPrices.TEEN = 20;
+      constants.TicketPrices.TEEN = 20;
     }).to.throw(TypeError);
 
     expect(() => {
@@ -135,16 +143,18 @@ describe("Constants enum", () => {
   });
   it("should contain exactly Metrics members and values", () => {
     expect(Object.keys(constants.Metrics)).to.have.members(["METRICS_PREFIX"]);
-    expect(Object.values(constants.Metrics)).to.have.members(["cinema_ticket_"]);
+    expect(Object.values(constants.Metrics)).to.have.members([
+      "cinema_ticket_",
+    ]);
   });
   it("Metrics enum should be immutable", () => {
     expect(Object.isFrozen(constants.Metrics)).to.be.true;
     expect(() => {
-        constants.Metrics.METRICS_PREFIX = "dummy_metric_";
+      constants.Metrics.METRICS_PREFIX = "dummy_metric_";
     }).to.throw(TypeError);
 
     expect(() => {
-        constants.Metrics.NEW_METRIC = "new_dummy_metric";
+      constants.Metrics.NEW_METRIC = "new_dummy_metric";
     }).to.throw(TypeError);
 
     expect(() => {
