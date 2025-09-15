@@ -2,6 +2,7 @@ import InvalidPurchaseException from "../pairtest/lib/InvalidPurchaseException.j
 import TicketPaymentService from "../thirdparty/paymentgateway/TicketPaymentService.js";
 import SeatReservationService from "../thirdparty/seatbooking/SeatReservationService.js";
 import logger from "../utils/Logger.js";
+import { randomUUID } from "crypto";
 import {
   Defaults,
   TicketTypes,
@@ -24,6 +25,10 @@ import {
  * @since 09-09-2025
  */
 export default class TicketService {
+  #corelationId;
+  #seatReservationService = new SeatReservationService();
+  #ticketPaymentService = new TicketPaymentService();
+
   /**
    * This is the implementation method which purchase ticket for an account.
    * It takes in two arguments. i.e account ID and object/s of TicketTypeRequest.
@@ -39,10 +44,17 @@ export default class TicketService {
   purchaseTickets(accountId, ...ticketTypeRequests) {
     let totalAmountToPay = 0,
       totalSeatsToAllocate = 0;
-    const ticketPaymentService = new TicketPaymentService();
-    const seatReservationService = new SeatReservationService();
-    logger.info(`Ticket booking request for Account ID:: ${accountId}`);
-    logger.debug(`Validating requests for Account ID:: ${accountId}`);
+    this.#corelationId = randomUUID();
+    logger.info(
+      `Corelation ID:: ${
+        this.#corelationId
+      } Ticket booking request for Account ID:: ${accountId}`
+    );
+    logger.debug(
+      `Corelation ID:: ${
+        this.#corelationId
+      } Validating requests for Account ID:: ${accountId}`
+    );
     /* eslint-disable-next-line*/
     this.#validateRequest(accountId, ticketTypeRequests);
 
@@ -57,16 +69,15 @@ export default class TicketService {
           : 0;
     });
     try {
-      logger.debug(
-        "Proceeding for seat reservation for Account ID:: {}",
-        accountId
-      );
-      seatReservationService.reserveSeat(accountId, totalSeatsToAllocate);
-      logger.info("Seat reservation successful for Account ID:: {}", accountId);
+      logger.debug(`Corelation ID:: ${this.#corelationId} 
+        Proceeding for seat reservation for Account ID:: ${accountId}`);
+      this.#seatReservationService.reserveSeat(accountId, totalSeatsToAllocate);
+      logger.info(`Corelation ID:: ${this.#corelationId} 
+        Seat reservation successful for Account ID:: ${accountId}`);
     } catch (seatReservationException) {
       logger.error(
-        "Seat reservation failed to reserve seat",
-        seatReservationException
+        `Corelation ID:: ${this.#corelationId}`,
+        `Seat reservation failed to reserve seat ${seatReservationException}`
       );
       failedEventsCounter.inc();
       throw new InvalidPurchaseException(
@@ -75,13 +86,15 @@ export default class TicketService {
       );
     }
     try {
-      logger.debug("Proceeding for payment for Account ID:: {}", accountId);
-      ticketPaymentService.makePayment(accountId, totalAmountToPay);
-      logger.info("Payment successful for Account ID:: {}", accountId);
+      logger.debug(`Corelation ID:: ${this.#corelationId} 
+        Proceeding for payment for Account ID:: ${accountId}`);
+      this.#ticketPaymentService.makePayment(accountId, totalAmountToPay);
+      logger.info(`Corelation ID:: ${this.#corelationId} 
+        Payment successful for Account ID:: ${accountId}`);
     } catch (paymentException) {
       logger.error(
-        "Payment gateway failed to process payment",
-        paymentException
+        `Corelation ID:: ${this.#corelationId}`,
+        `Payment gateway failed to process payment ${paymentException}`
       );
       failedEventsCounter.inc();
       throw new InvalidPurchaseException(
@@ -161,9 +174,7 @@ export default class TicketService {
    */
   #isMaxTicketCountExceeded(ticketTypeRequests) {
     return (
-      ticketTypeRequests
-        .filter((e) => e.getTicketType() !== TicketTypes.INFANT)
-        .reduce((sum, i) => sum + i.getNoOfTickets(), 0) >
+      ticketTypeRequests.reduce((sum, i) => sum + i.getNoOfTickets(), 0) >
       Defaults.MAX_TICKETS_ALLOWED
     );
   }
@@ -189,14 +200,17 @@ export default class TicketService {
    * @return boolean value of validation
    */
   #isInfantTicketEqualAdultTicket(ticketTypeRequests) {
-    let tickets = ticketTypeRequests;
-    let adultTickets = tickets
-      .filter((e) => e.getTicketType() === TicketTypes.ADULT)
-      .reduce((sum, i) => sum + i.getNoOfTickets(), 0);
-    let infantTickets = tickets
-      .filter((e) => e.getTicketType() === TicketTypes.INFANT)
-      .reduce((sum, i) => sum + i.getNoOfTickets(), 0);
-    return adultTickets < infantTickets ? false : true;
+    let ticketSummary = {
+      ADULT: 0,
+      CHILD: 0,
+      INFANT: 0,
+    };
+
+    ticketTypeRequests.forEach((ticket) => {
+      const type = ticket.getTicketType();
+      ticketSummary[type] = ticketSummary[type] + ticket.getNoOfTickets();
+    });
+    return ticketSummary.ADULT < ticketSummary.INFANT ? false : true;
   }
 }
 

@@ -12,8 +12,6 @@ import InvalidPurchaseException from "../../src/pairtest/lib/InvalidPurchaseExce
 import { TicketTypes } from "../../src/enum/Constants.js";
 
 describe("Cinema Ticket Service Testing", async () => {
-  // Sinon.stub(failedBusinessEventsCounter, "inc").resolves(1);
-  // Sinon.stub(failedEventsCounter, "inc").resolves(1);
   describe("Cinema Ticket Service interface contract testing", async () => {
     //   Expect TicketService to expose only one public method i.e purchaseTickets
     it("should expose exactly one public method: purchaseTickets", () => {
@@ -117,7 +115,7 @@ describe("Cinema Ticket Service Testing", async () => {
       );
     });
     // Try to book tickets with 0 zero ticket in array
-    it("Invalid payload of tickets exceeding maximum number of tickets", async () => {
+    it("Invalid payload of tickets 0 zero number of tickets", async () => {
       const objTicket = new TicketService();
       assert.throws(() => {
         objTicket.purchaseTickets(
@@ -142,6 +140,23 @@ describe("Cinema Ticket Service Testing", async () => {
           new TicketTypeRequest(TicketTypes.ADULT, 8),
           new TicketTypeRequest(TicketTypes.CHILD, 8),
           new TicketTypeRequest(TicketTypes.CHILD, 10)
+        );
+      }, InvalidPurchaseException);
+      assert.equal(
+        (await failedBusinessEventsCounter.get()).values[0].value,
+        1
+      );
+    });
+    // Try to book tickets more than maximum allowed
+    // Business Rule: Only a maximum of 25 tickets that can be purchased at a time.
+    it("Invalid payload of tickets exceeding maximum number of tickets with infant tickets", async () => {
+      const objTicket = new TicketService();
+      assert.throws(() => {
+        objTicket.purchaseTickets(
+          1,
+          new TicketTypeRequest(TicketTypes.ADULT, 8),
+          new TicketTypeRequest(TicketTypes.CHILD, 10),
+          new TicketTypeRequest(TicketTypes.INFANT, 8)
         );
       }, InvalidPurchaseException);
       assert.equal(
